@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -188,19 +189,32 @@ class Lw005BleClient {
       );
 
   Future<void> enableLogNotify() async {
-    final characteristic = _logNotifyChar;
-    if (characteristic == null) {
-      throw Lw005ProtocolException('Log notify characteristic unavailable');
-    }
+    await _ensureLogNotifyCharacteristic();
+    final characteristic = _requireCharacteristic(_logNotifyChar, 'log notify');
     if (_logNotifySubscribed) {
       return;
     }
-    await characteristic.setNotifyValue(true);
-    await _notifySubscriptions['log']?.cancel();
-    _notifySubscriptions['log'] = characteristic.onValueReceived.listen(
-      (value) => _handleNotification('log', value),
-    );
+    await _subscribeCharacteristic(characteristic, 'log');
     _logNotifySubscribed = true;
+  }
+
+  Future<void> _ensureLogNotifyCharacteristic() async {
+    if (_logNotifyChar != null) {
+      return;
+    }
+    final device = _device;
+    if (device == null || !device.isConnected) {
+      throw Lw005ProtocolException('Device not connected');
+    }
+    final services = await device.discoverServices();
+    final custom = _findService(services, Lw005Uuids.customService);
+    if (custom == null) {
+      throw Lw005ProtocolException('Custom service 0xAA00 not found');
+    }
+    _logNotifyChar = _findCharacteristic(custom, Lw005Uuids.logNotify);
+    if (_logNotifyChar == null) {
+      throw Lw005ProtocolException('Log notify characteristic unavailable');
+    }
   }
 
   Future<void> disableLogNotify() async {
@@ -282,7 +296,7 @@ class Lw005BleClient {
     if (channelKey == 'log') {
       Lw005ProtocolLogger.logRx(channel: channelKey, payload: value);
       if (value.isNotEmpty) {
-        _logNotifyController.add(String.fromCharCodes(value));
+        _logNotifyController.add(_decodeLogPayload(value));
       }
       return;
     }
@@ -382,10 +396,17 @@ class Lw005BleClient {
     }
   }
 
+  static String _decodeLogPayload(List<int> value) {
+    return utf8.decode(value, allowMalformed: true);
+  }
+
+  static bool _uuidMatches(Guid actual, String expected) {
+    return actual.toString().toLowerCase() == Guid(expected).toString().toLowerCase();
+  }
+
   BluetoothService? _findService(List<BluetoothService> services, String uuid) {
-    final target = Guid(uuid);
     for (final service in services) {
-      if (service.uuid == target) {
+      if (_uuidMatches(service.uuid, uuid)) {
         return service;
       }
     }
@@ -396,9 +417,8 @@ class Lw005BleClient {
     BluetoothService service,
     String uuid,
   ) {
-    final target = Guid(uuid);
     for (final characteristic in service.characteristics) {
-      if (characteristic.uuid == target) {
+      if (_uuidMatches(characteristic.uuid, uuid)) {
         return characteristic;
       }
     }

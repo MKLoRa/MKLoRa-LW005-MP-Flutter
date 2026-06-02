@@ -149,4 +149,12 @@ class Lw005LoraConnHelpers {
 
   static bool shouldWriteDutyCycle(int region) =>
       region == 3 || region == 4 || region == 5 || region == 9;
+
+  /// Device wire value 0 = Class A, 2 = Class C (params key 0x09).
+  static int loraClassIndexFromDevice(int loraClass) => loraClass == 2 ? 1 : 0;
+
+  static int loraClassValueFromIndex(int index) => index == 1 ? 2 : 0;
+
+  static String loraClassSummaryLabel(int loraClass) =>
+      loraClass == 2 ? 'ClassC' : 'ClassA';
 }

@@ -4,9 +4,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../ble/lw005.dart';
-import '../../../../ble/lw005_device_session.dart';
-import '../../../../ble/lw005_param_helpers.dart';
-import '../../../../ble/lw005_protocol_named_api.dart';
 import '../../../../dfu/lw005_dfu_coordinator.dart';
 import '../../../../dfu/lw005_dfu_service.dart';
 import '../../../../dfu/lw005_dfu_utils.dart';

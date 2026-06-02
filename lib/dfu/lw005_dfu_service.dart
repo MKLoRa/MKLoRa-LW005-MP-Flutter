@@ -83,7 +83,7 @@ class Lw005DfuService {
             onDfuProcessStarting: (_) => onStatus?.call('DfuProcessStarting...'),
             onEnablingDfuMode: (_) => onStatus?.call('EnablingDfuMode...'),
             onFirmwareValidating: (_) => onStatus?.call('FirmwareValidating...'),
-            onProgressChanged: (_, percent, __, ___, ____, _____) {
+            onProgressChanged: (_, percent, _, _, _, _) {
               onProgress?.call(percent);
               onStatus?.call('Progress:$percent%');
             },
@@ -91,7 +91,7 @@ class Lw005DfuService {
               onStatus?.call('DfuAborted...');
               finishError(Lw005DfuException('DfuAborted'));
             },
-            onError: (_, __, ___, message) {
+            onError: (_, _, _, message) {
               debugPrint('[LW005 DFU] error: $message');
               finishError(
                 Lw005DfuException(

@@ -93,6 +93,7 @@ extension Lw005ProtocolNamedWriteApi on Lw005ProtocolApi {
   Future<bool> writeBleTxPower(List<int> data) => writeParam(Lw005ParamKey.bleTxPower, data);
 
   Future<bool> writePowerOnDefaultMode(List<int> data) => writeParam(Lw005ParamKey.powerOnDefaultMode, data);
+  Future<bool> writeSwitchStatus(List<int> data) => writeParam(Lw005ParamKey.switchStatus, data);
   Future<bool> writeSwitchPayloadReportInterval(List<int> data) =>
       writeParam(Lw005ParamKey.switchPayloadReportInterval, data);
   Future<bool> writeElectricityReportInterval(List<int> data) =>

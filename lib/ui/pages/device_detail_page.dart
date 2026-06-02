@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../ble/lw005.dart';
-import '../../ble/lw005_device_session.dart';
 import '../../dfu/lw005_dfu_coordinator.dart';
 import '../../ui/theme/device_detail_theme.dart';
 import '../../ui/widgets/ble_loading_overlay.dart';

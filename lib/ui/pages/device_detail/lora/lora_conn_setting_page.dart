@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../ble/lw005.dart';
-import '../../../../../ble/lw005_data_codec.dart';
-import '../../../../../ble/lw005_device_session.dart';
-import '../../../../../ble/lw005_lora_conn_helpers.dart';
-import '../../../../../ble/lw005_param_helpers.dart';
-import '../../../../../ble/lw005_protocol_named_api.dart';
 import '../../../../../ui/theme/device_detail_theme.dart';
 import '../../../../../ui/widgets/ble_loading_overlay.dart';
 import '../../../../../ui/widgets/device_detail/bottom_picker_dialog.dart';
@@ -31,6 +26,7 @@ class _LoRaConnSettingPageState extends State<LoRaConnSettingPage> {
 
   int _modeIndex = 1;
   int _regionPicker = 5;
+  int _classIndex = 1;
   int _messageTypeIndex = 0;
   int _maxRetransIndex = 0;
   bool _advanced = false;
@@ -55,6 +51,7 @@ class _LoRaConnSettingPageState extends State<LoRaConnSettingPage> {
         api.readLoraAppSkey(),
         api.readLoraNwkSkey(),
         api.readLoraRegion(),
+        api.readLoraClass(),
         api.readLoraCh(),
         api.readLoraDutycycle(),
         api.readLoraDr(),
@@ -74,23 +71,29 @@ class _LoRaConnSettingPageState extends State<LoRaConnSettingPage> {
       final region = Lw005ParamHelpers.uint8(results[7].data);
       _regionPicker = Lw005LoraConnHelpers.pickerFromRegion(region);
       Lw005LoraConnHelpers.applyRegion(_state, region);
-      final ch = results[8].data;
+      _classIndex = Lw005LoraConnHelpers.loraClassIndexFromDevice(
+        Lw005ParamHelpers.uint8(results[8].data),
+      );
+      final ch = results[9].data;
       if (ch.length >= 2) {
         _state.ch1 = ch[0];
         _state.ch2 = ch[1];
       }
-      _dutyCycle = Lw005ParamHelpers.uint8(results[9].data) == 1;
-      _state.dr = Lw005ParamHelpers.uint8(results[10].data);
-      final strategy = results[11].data;
+      _dutyCycle = Lw005ParamHelpers.uint8(results[10].data) == 1;
+      _state.dr = Lw005ParamHelpers.uint8(results[11].data);
+      final strategy = results[12].data;
       if (strategy.isNotEmpty) {
         _adr = Lw005ParamHelpers.uint8(strategy) == 1;
       }
-      if (strategy.length >= 3) {
+      if (strategy.length >= 4) {
+        _state.dr1 = strategy[2];
+        _state.dr2 = strategy[3];
+      } else if (strategy.length >= 3) {
         _state.dr1 = strategy[1];
         _state.dr2 = strategy[2];
       }
-      _messageTypeIndex = Lw005ParamHelpers.uint8(results[12].data).clamp(0, 1);
-      final retrans = Lw005ParamHelpers.uint8(results[13].data);
+      _messageTypeIndex = Lw005ParamHelpers.uint8(results[13].data).clamp(0, 1);
+      final retrans = Lw005ParamHelpers.uint8(results[14].data);
       _maxRetransIndex = (retrans - 1).clamp(0, 7);
       setState(() {});
     });
@@ -121,6 +124,15 @@ class _LoRaConnSettingPageState extends State<LoRaConnSettingPage> {
       selectedIndex: _modeIndex,
     );
     if (index != null) setState(() => _modeIndex = index);
+  }
+
+  Future<void> _pickDeviceType() async {
+    final index = await showBottomPicker(
+      context: context,
+      options: Lw005OptionLists.loraDeviceClasses,
+      selectedIndex: _classIndex,
+    );
+    if (index != null) setState(() => _classIndex = index);
   }
 
   Future<void> _pickRegion() async {
@@ -225,6 +237,11 @@ class _LoRaConnSettingPageState extends State<LoRaConnSettingPage> {
       if (!await api.writeLoraAppKey(Lw005ParamHelpers.hexToBytes(_appKey.text))) return false;
     }
     if (!await api.writeLoraMode([_modeIndex + 1])) return false;
+    if (!await api.writeLoraClass([
+      Lw005LoraConnHelpers.loraClassValueFromIndex(_classIndex),
+    ])) {
+      return false;
+    }
     if (!await api.writeLoraMessageType([_messageTypeIndex])) return false;
     if (_messageTypeIndex == 1) {
       if (!await api.writeLoraMaxRetransmissionTimes([_maxRetransIndex + 1])) return false;
@@ -406,6 +423,15 @@ class _LoRaConnSettingPageState extends State<LoRaConnSettingPage> {
               child: BlueValueButton(
                 text: Lw005OptionLists.loraRegions[_regionPicker],
                 onTap: _pickRegion,
+              ),
+            ),
+          ),
+          SettingsCard(
+            child: SettingsLabelRow(
+              label: 'Device Type',
+              child: BlueValueButton(
+                text: Lw005OptionLists.loraDeviceClasses[_classIndex],
+                onTap: _pickDeviceType,
               ),
             ),
           ),

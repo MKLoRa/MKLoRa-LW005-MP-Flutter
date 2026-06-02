@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../ble/lw005.dart';
-import '../../../../../ble/lw005_device_session.dart';
-import '../../../../../ble/lw005_param_helpers.dart';
 import '../../../../../ui/widgets/ble_loading_overlay.dart';
 import '../../../../../ui/widgets/common_confirm_dialog.dart';
 import '../../../../../ui/widgets/device_detail/bottom_picker_dialog.dart';

@@ -330,12 +330,13 @@ class Lw005DataCodec {
     return null;
   }
 
+  /// LW005 params 0x0E: [ADR, sendCount(1), DR_min, DR_max].
   static List<int> encodeLoraUplinkStrategy({
     required bool adr,
     required int dr1,
     required int dr2,
   }) =>
-      [adr ? 1 : 0, dr1, dr2];
+      [adr ? 1 : 0, 0x01, dr1, dr2];
 
   static List<int> encodeAccCondition(int threshold, int duration) => [threshold, duration];
 }

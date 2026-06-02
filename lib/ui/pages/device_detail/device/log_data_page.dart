@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../../../ble/lw005_ble_client.dart';
 import '../../../../../ble/lw005_debug_log_file.dart';
 import '../../../../../ble/lw005_device_session.dart';
 import '../../../../../ui/theme/device_detail_theme.dart';
@@ -59,10 +60,37 @@ class _LogDataPageState extends State<LogDataPage> {
       }
       _buffer.clear();
       _syncTime = Lw005DebugLogFile.syncTimestamp(DateTime.now());
-      await widget.session.client.enableLogNotify();
-      _logSub = widget.session.client.logNotifyEvents.listen((chunk) {
-        _buffer.write(chunk);
-      });
+      try {
+        await widget.session.client.enableLogNotify();
+      } on Lw005ProtocolException catch (error) {
+        if (!mounted) return;
+        await showCommonConfirmDialog(
+          context: context,
+          title: 'Tips',
+          message: error.message,
+          confirmText: 'OK',
+          actionColor: BleScanViewModel.titleBarColor,
+          showCancel: false,
+        );
+        return;
+      } catch (error) {
+        if (!mounted) return;
+        await showCommonConfirmDialog(
+          context: context,
+          title: 'Tips',
+          message: error.toString(),
+          confirmText: 'OK',
+          actionColor: BleScanViewModel.titleBarColor,
+          showCancel: false,
+        );
+        return;
+      }
+      _logSub = widget.session.client.logNotifyEvents.listen(
+        (chunk) => _buffer.write(chunk),
+        onError: (error) {
+          debugPrint('LW005 log notify error: $error');
+        },
+      );
       if (!mounted) return;
       setState(() => _syncing = true);
       return;

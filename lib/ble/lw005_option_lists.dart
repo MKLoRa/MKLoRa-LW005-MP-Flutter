@@ -16,6 +16,9 @@ class Lw005OptionLists {
   static const posStrategy8 = [...posStrategy7, 'BLE&GPS'];
 
   static const loraUploadMode = ['ABP', 'OTAA'];
+  /// LoRa work mode (UI label "Device Type" on Connection Setting page).
+  static const loraDeviceClasses = ['Class A', 'Class C'];
+
   static const loraRegions = [
     'AS923',
     'AU915',

@@ -44,7 +44,7 @@ enum Lw005ParamKey {
   timeZone(0x4E, Lw005ParamAccess.readWrite),
   countdownReportInterval(0x4F, Lw005ParamAccess.readWrite),
   ledIndicatorStatus(0x50, Lw005ParamAccess.readWrite),
-  switchStatus(0x61, Lw005ParamAccess.readOnly),
+  switchStatus(0x61, Lw005ParamAccess.readWrite),
   networkStatus(0x62, Lw005ParamAccess.readOnly),
   loadStatus(0x63, Lw005ParamAccess.readOnly),
   totalEnergy(0x65, Lw005ParamAccess.readOnly),

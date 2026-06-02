@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../ble/lw005.dart';
-import '../../../../../ble/lw005_device_session.dart';
-import '../../../../../ble/lw005_param_helpers.dart';
-import '../../../../../ble/lw005_protocol_named_api.dart';
 import '../../../../../ui/theme/device_detail_theme.dart';
 import '../../../../../ui/widgets/ble_loading_overlay.dart';
 import '../../../../../ui/widgets/device_detail/settings_widgets.dart';
@@ -33,6 +30,7 @@ class LoRaTabState extends State<LoRaTab> {
         final api = widget.session.protocol;
         final region = await api.readLoraRegion();
         final mode = await api.readLoraMode();
+        final loraClass = await api.readLoraClass();
         final status = await api.readLoraNetworkStatus();
         if (!mounted) return;
         setState(() {
@@ -46,7 +44,10 @@ class LoRaTabState extends State<LoRaTab> {
           final modeLabel = modeIndex >= 0 && modeIndex < Lw005OptionLists.loraUploadMode.length
               ? Lw005OptionLists.loraUploadMode[modeIndex]
               : 'OTAA';
-          _summary = '$modeLabel/$regionLabel/ClassA';
+          final classLabel = Lw005LoraConnHelpers.loraClassSummaryLabel(
+            Lw005ParamHelpers.uint8(loraClass.data),
+          );
+          _summary = '$modeLabel/$regionLabel/$classLabel';
         });
       },
       showOverlay: showOverlay,
