@@ -2,7 +2,7 @@
 
 Flutter client for **LW005-MP** smart power meter / switch devices. Supports BLE scanning, connection, protocol parameter read/write, device-initiated disconnect notifications, LoRa connection and application settings, General tab (switch / electricity / energy / protection / load / countdown / LED), BLE advertising settings, debug log export, and Nordic DFU firmware updates on Android and iOS physical devices.
 
-Native Android reference: [`LW005-MP-Android`](../LW005-MP-Android)
+Native Android reference: `LW005-MP-Android`
 
 ---
 
