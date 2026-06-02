@@ -334,9 +334,7 @@ Notes:
 
 - Firmware package must be a **ZIP** file
 - Do not rely on the original GATT session during DFU; the device reboots when done
-- **Android only** — MTU behaviour follows native `SystemInfoActivity` by `deviceType`:
-  - `deviceType == 0`: `disableMtuRequest()`
-  - `deviceType == 1`: `setCurrentMtu(247)`
+- **Android only** — always `disableMtuRequest: true`, matching native `SystemInfoActivity`
 - iOS does not apply Android MTU settings
 - Swift Package Manager is disabled in `pubspec.yaml` (`enable-swift-package-manager: false`) to use the CocoaPods NordicDFU build on iOS
 

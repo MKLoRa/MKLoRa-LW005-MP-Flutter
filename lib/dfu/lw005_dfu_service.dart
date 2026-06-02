@@ -49,13 +49,13 @@ class Lw005DfuService {
       '[LW005 DFU] start address=$address file=$filePath deviceType=$deviceType',
     );
 
+    // Native SystemInfoActivity always calls disableMtuRequest() (no deviceType branch).
     final androidParameters = Platform.isAndroid
-        ? AndroidParameters(
+        ? const AndroidParameters(
             keepBond: false,
             disableNotification: true,
             startAsForegroundService: false,
-            disableMtuRequest: deviceType == 0 ? true : null,
-            currentMtu: deviceType == 1 ? 247 : null,
+            disableMtuRequest: true,
           )
         : const AndroidParameters();
 
